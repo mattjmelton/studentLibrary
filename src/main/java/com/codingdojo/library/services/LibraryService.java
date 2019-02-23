@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.codingdojo.library.models.Book;
 import com.codingdojo.library.models.Student;
 import com.codingdojo.library.models.Issue;
+import com.codingdojo.library.models.Issue.IssueId;
 import com.codingdojo.library.repositories.BookRepository;
 import com.codingdojo.library.repositories.IssueRepository;
 import com.codingdojo.library.repositories.StudentRepository;
@@ -101,7 +102,7 @@ public class LibraryService {
     		
     		LocalDate checkout = LocalDate.now();
     		LocalDate returndate = checkout.plusDays(14);
-    		System.out.println(checkout + " " + returndate);
+//    		System.out.println(checkout + " " + returndate);
     		Issue issue = new Issue(student, book, checkout, returndate);
     		issueRepo.save(issue);
     		decreaseCopies(book);
@@ -127,12 +128,36 @@ public class LibraryService {
     	return student.getIssuedToStudent();
     }
     // delete issue record and increase number of copies
-//    public void returnBook(Book book) {
+    public void returnBook(Book book, Student student) {
 //    	Long bookid = book.getCode();
-//    	
-//    	issueRepo.delete();
-//    	increaseCopies(book);
-//    }
+//    	Long studid = student.getLibID();
+//    	Optional<Issue> i = issueRepo.findById(new IssueId(bookid, studid));
+//    	if(i.isPresent()) {
+//    		issueRepo.delete(i);
+//    	} else {
+//    		return;
+//    	}
+//    	System.out.println(id);
+    	Issue i = getIssueRecord(book,student);
+    	if(i != null) {
+    		issueRepo.delete(i);
+        	increaseCopies(book);
+    	} else {
+    		System.out.println("There was a problem.");
+    	}
+    	
+    }
+    //get Issue
+    public Issue getIssueRecord(Book book, Student student) {
+    	Long bookid = book.getCode();
+    	Long studid = student.getLibID();
+    	Optional<Issue> i = issueRepo.findById(new IssueId(studid,bookid));
+    	if(i.isPresent()) {
+    		return i.get();
+    	} else {
+    		return null;
+    	}
+    }
     
     // create student
     public Student createStudent(Student s) {

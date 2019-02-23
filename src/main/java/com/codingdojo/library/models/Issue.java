@@ -8,12 +8,15 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
+//import javax.persistence.FetchType;
+//import javax.persistence.GeneratedValue;
+//import javax.persistence.GenerationType;
+//import javax.persistence.Id;
+//import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
 @Entity
@@ -82,11 +85,13 @@ public class Issue {
 	private Date updatedAt;
 	
 	@ManyToOne
-	@JoinColumn(name="libid", insertable=false, updatable=false)
+//	@JoinColumn(name="libid", insertable=false, updatable=false)
+	@MapsId("libid")
 	private Student student;
 	
 	@ManyToOne
-	@JoinColumn(name="code", insertable=false, updatable=false)
+//	@JoinColumn(name="code", insertable=false, updatable=false)
+	@MapsId("code")
 	private Book book;
 	
 	//constructor
@@ -101,6 +106,8 @@ public class Issue {
 		this.book = b;
 		this.issuedate = checkout;
 		this.returndate = returndate;
+		Date now = new Date();
+		this.createdAt = now;
 		//update relationships to ensure referential integrity
 		b.getIssuedBooks().add(this);
 		s.getIssuedToStudent().add(this);
@@ -109,7 +116,6 @@ public class Issue {
 	
 	
 	//getters and setters
-
 	public IssueId getId() {
 		return id;
 	}
@@ -165,5 +171,12 @@ public class Issue {
 	public void setBook(Book book) {
 		this.book = book;
 	}
-	
+	@PrePersist
+    protected void onCreate(){
+        this.createdAt = new Date();
+    }
+	@PreUpdate
+    protected void onUpdate(){
+        this.updatedAt = new Date();
+    }
 }

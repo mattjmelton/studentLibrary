@@ -120,10 +120,12 @@ public class LibraryController {
 		
 	//route to return book to the library
 	@RequestMapping("/books/{id}")
-	public String showBook(@PathVariable("id") Long id, Model model) {
+	public String showBook(@PathVariable("id") Long id, Model model, HttpSession session) {
 		Book book = libraryService.findBook(id);
-		System.out.println("Returning the book placeholder.");
-//		libraryService.returnBook(book);
+		Long eUserId = (Long)session.getAttribute("userId");
+		Student eUser = libraryService.findStudentById(eUserId);
+//		System.out.println("Returning the book placeholder.");
+		libraryService.returnBook(book, eUser);
 		return "redirect:/libdash";
 	}
 	//route to render the edit book page
